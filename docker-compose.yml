@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  database:
+    image: postgres:14
+    volumes:
+      - type: bind
+        source: ./database/init/init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_PASSWORD: keyboardcat
+      POSTGRES_USER: postgres
+  api:
+    build: ./api
+    volumes:
+      - type: bind
+        source: ./api
+        target: /code
+    environment:
+      ROCKET_ADDRESS: 0.0.0.0
+    ports:
+      - 8000:8000
+  graphql:
+    image: hasura/graphql-engine:latest
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:keyboardcat@database:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: keyboardcat
+    depends_on:
+      - waitForDatabase
+    ports:
+      - 8080
+  waitForDatabase:
+    image: brookzerker/wait-for-port
+    depends_on:
+      - database
+    environment:
+      HOST: database
+      PORT: 5432

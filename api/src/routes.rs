@@ -16,7 +16,7 @@ use crate::responses::{Error, ErrorResponse, Points, SuccessResponse};
 
 #[get("/")]
 pub async fn index() -> &'static str {
-    "Hello, world!!!!!"
+    "Hello from Docker"
 }
 
 #[post("/")]
